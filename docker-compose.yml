@@ -1,51 +1,33 @@
-version: '3.9'
+version: '3.7'
+
+#project_name: restaurant
+
 services:
-  server:
+  restaurant_mail:
     build: 
       context: ./server
       dockerfile: Dockerfile
-    container_name: server
-    ports:
-      - '3001:3001'
+    restart: always
+    container_name: restaurant_backend
     networks:
-      - caddy
+      - reverse_proxy
       
     env_file:
       - ./server/.env
     volumes:
       - ./server:/app
 
-    labels:
-      caddy.cors / :
-      caddy.cors.origin:      http://restaurant.tedstar25.homes     
-
-
-    #volumes:
-      # Bind-mounts configuration
-      #- ./node:/app
-      # Ignoring any changes made in the "node_modules" folder
-      #- ./app/node_modules
-
-  client:
+  restaurant:
     build: 
       context: ./client
-      dockerfile: Dockerfile
-    container_name: client
-    ports:
-      - '3000:3000'
+      dockerfile: Dockerfile.dev
+    container_name: restaurant
+    restart: always
     networks:
-      - caddy
+      - reverse_proxy
     volumes:
       - ./client/src:/app/src
-    labels:
-      caddy: restaurant.tedstar25.homes www.restaurant.tedstar25.homes
-      caddy.reverse_proxy: "{{upstreams 80}}"
-
-
-
-
-
 
 networks:
-  caddy:
+  reverse_proxy: 
     external: true
